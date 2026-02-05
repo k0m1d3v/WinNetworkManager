@@ -44,6 +44,13 @@ public partial class MainForm : MetroSuite.MetroForm
 
         guna2TextBox1.TextChanged += (s, e) => UpdateProcessList();
 
+        // Set initial tooltips for better UX
+        System.Windows.Forms.ToolTip toolTip = new System.Windows.Forms.ToolTip();
+        toolTip.SetToolTip(guna2TextBox1, "Type to filter processes by name");
+        toolTip.SetToolTip(midnightListView1, "Click on a process to view its network connections");
+        toolTip.SetToolTip(guna2TextBox2, "TCP connections for the selected process");
+        toolTip.SetToolTip(guna2TextBox3, "UDP connections for the selected process");
+
         new Thread(TrackNetworkEvents) { IsBackground = true }.Start();
         UpdateProcessList();
     }
@@ -159,6 +166,18 @@ public partial class MainForm : MetroSuite.MetroForm
             {
                 var top = midnightListView1.Items.Cast<ListViewItem>().FirstOrDefault(i => ItemKey(i) == topKey);
                 if (top != null) try { midnightListView1.TopItem = top; } catch { }
+            }
+
+            // Update status label with process count
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => {
+                    labelStatus.Text = $"📊 Monitoring {procs.Length} process(es) • Updated: {DateTime.Now:HH:mm:ss}";
+                }));
+            }
+            else
+            {
+                labelStatus.Text = $"📊 Monitoring {procs.Length} process(es) • Updated: {DateTime.Now:HH:mm:ss}";
             }
         }
         finally { midnightListView1.EndUpdate(); }
