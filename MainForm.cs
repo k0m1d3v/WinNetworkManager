@@ -14,6 +14,7 @@ public partial class MainForm : MetroSuite.MetroForm
 {
     private const int AverageWindow = 5;
     private System.Windows.Forms.Timer refreshTimer;
+    private System.Windows.Forms.ToolTip toolTip;
 
     private ConcurrentDictionary<int, long> totalTcpSent = new ConcurrentDictionary<int, long>();
     private ConcurrentDictionary<int, long> totalTcpRecv = new ConcurrentDictionary<int, long>();
@@ -45,7 +46,7 @@ public partial class MainForm : MetroSuite.MetroForm
         guna2TextBox1.TextChanged += (s, e) => UpdateProcessList();
 
         // Set initial tooltips for better UX
-        System.Windows.Forms.ToolTip toolTip = new System.Windows.Forms.ToolTip();
+        toolTip = new System.Windows.Forms.ToolTip();
         toolTip.SetToolTip(guna2TextBox1, "Type to filter processes by name");
         toolTip.SetToolTip(midnightListView1, "Click on a process to view its network connections");
         toolTip.SetToolTip(guna2TextBox2, "TCP connections for the selected process");
@@ -169,15 +170,16 @@ public partial class MainForm : MetroSuite.MetroForm
             }
 
             // Update status label with process count
+            string statusText = $"📊 Monitoring {procs.Length} process(es) • Updated: {DateTime.Now:HH:mm:ss}";
             if (this.InvokeRequired)
             {
                 this.Invoke(new Action(() => {
-                    labelStatus.Text = $"📊 Monitoring {procs.Length} process(es) • Updated: {DateTime.Now:HH:mm:ss}";
+                    labelStatus.Text = statusText;
                 }));
             }
             else
             {
-                labelStatus.Text = $"📊 Monitoring {procs.Length} process(es) • Updated: {DateTime.Now:HH:mm:ss}";
+                labelStatus.Text = statusText;
             }
         }
         finally { midnightListView1.EndUpdate(); }

@@ -9,6 +9,12 @@
             components.Dispose();
         }
 
+        if (disposing)
+        {
+            toolTip?.Dispose();
+            refreshTimer?.Dispose();
+        }
+
         base.Dispose(disposing);
     }
 
@@ -75,7 +81,6 @@
             this.guna2TextBox1.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.guna2TextBox1.ForeColor = System.Drawing.Color.White;
             this.guna2TextBox1.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
-            this.guna2TextBox1.IconLeft = global::System.Drawing.SystemIcons.Application.ToBitmap();
             this.guna2TextBox1.Location = new System.Drawing.Point(25, 541);
             this.guna2TextBox1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.guna2TextBox1.Name = "guna2TextBox1";
