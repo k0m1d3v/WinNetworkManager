@@ -25,15 +25,19 @@ namespace ModernUI
         #region Colors Configuration
         private Color _backColor = Color.FromArgb(30, 30, 30);
         private Color _foreColor = Color.FromArgb(230, 230, 230);
-        private Color _headerColor = Color.FromArgb(40, 40, 40);
-        private Color _headerForeColor = Color.FromArgb(170, 170, 170);
-        private Color _selectionColor = Color.FromArgb(60, 60, 70);
-        private Color _hoverColor = Color.FromArgb(45, 45, 48);
-        private Color _borderColor = Color.FromArgb(55, 55, 55);
+        private Color _headerColor = Color.FromArgb(35, 35, 35);
+        private Color _headerForeColor = Color.FromArgb(180, 180, 180);
+        private Color _selectionColor = Color.FromArgb(0, 120, 215);
+        private Color _hoverColor = Color.FromArgb(50, 50, 52);
+        private Color _borderColor = Color.FromArgb(60, 60, 60);
         private Color _accentColor = Color.FromArgb(0, 120, 215);
+        
+        private const int GradientStartAlpha = 10;
+        private const int AccentBarWidth = 4;
         #endregion
 
         private ListViewItem _hoveredItem;
+        private Font _headerFont;
 
         public MidnightListView()
         {
@@ -47,6 +51,7 @@ namespace ModernUI
             this.BackColor = _backColor;
             this.ForeColor = _foreColor;
             this.Font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
+            _headerFont = new Font("Segoe UI", 9.5f, FontStyle.Bold);
 
             MethodInfo method = typeof(Control).GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
             method.Invoke(this, new object[] { ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true });
@@ -99,16 +104,27 @@ namespace ModernUI
                 e.Graphics.FillRectangle(brush, e.Bounds);
             }
 
+            // Draw subtle gradient effect
+            using (System.Drawing.Drawing2D.LinearGradientBrush gradBrush = 
+                new System.Drawing.Drawing2D.LinearGradientBrush(
+                    e.Bounds, 
+                    Color.FromArgb(GradientStartAlpha, 255, 255, 255),
+                    Color.FromArgb(0, 0, 0, 0),
+                    System.Drawing.Drawing2D.LinearGradientMode.Vertical))
+            {
+                e.Graphics.FillRectangle(gradBrush, e.Bounds);
+            }
+
             using (Pen pen = new Pen(_borderColor))
             {
                 e.Graphics.DrawLine(pen, e.Bounds.Right - 1, e.Bounds.Top + 5, e.Bounds.Right - 1, e.Bounds.Bottom - 5);
                 e.Graphics.DrawLine(pen, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
             }
 
-            Rectangle textRect = new Rectangle(e.Bounds.X + 6, e.Bounds.Y, e.Bounds.Width - 12, e.Bounds.Height);
+            Rectangle textRect = new Rectangle(e.Bounds.X + 8, e.Bounds.Y, e.Bounds.Width - 16, e.Bounds.Height);
             TextFormatFlags flags = TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine;
 
-            TextRenderer.DrawText(e.Graphics, e.Header.Text, this.Font, textRect, _headerForeColor, flags);
+            TextRenderer.DrawText(e.Graphics, e.Header.Text, _headerFont, textRect, _headerForeColor, flags);
         }
 
         protected override void OnDrawItem(DrawListViewItemEventArgs e)
@@ -143,8 +159,8 @@ namespace ModernUI
 
                 if (isSelected)
                 {
-                    Rectangle accentRect = new Rectangle(rowBounds.X, rowBounds.Y, 3, rowBounds.Height);
-                    using (SolidBrush accentBrush = new SolidBrush(_accentColor))
+                    Rectangle accentRect = new Rectangle(rowBounds.X, rowBounds.Y, AccentBarWidth, rowBounds.Height);
+                    using (SolidBrush accentBrush = new SolidBrush(Color.White))
                     {
                         e.Graphics.FillRectangle(accentBrush, accentRect);
                     }
@@ -161,8 +177,8 @@ namespace ModernUI
             string text = (e.ColumnIndex == 0) ? e.Item.Text : e.SubItem.Text;
 
             Rectangle textRect = e.Bounds;
-            textRect.X += 8;
-            textRect.Width -= 8;
+            textRect.X += 10;
+            textRect.Width -= 10;
 
             TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine;
 
@@ -173,6 +189,15 @@ namespace ModernUI
         {
             base.OnResize(e);
             this.Invalidate();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _headerFont?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }
